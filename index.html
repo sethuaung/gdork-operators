@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="keywords" content="GDork-Sample">
+    <meta name="description" content="Sample Google Dorking Templates for Class Training">
+    <meta name="author" content="Mosquito">
+    <link href="images/favicon_fe.ico" rel="icon">
+    <title>Google Dorking Tool</title>
+    <style>
+        body {
+            background-color: black;
+            color: green;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1, h2 {
+            color: pink;
+        }
+        .container {
+            width: 90%;
+            max-width: 800px;
+            margin-top: 20px;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+            background-color: #111;
+            color: green;
+            border: 1px solid green;
+            padding: 10px;
+            margin-bottom: 20px;
+            resize: none;
+        }
+        button {
+            background-color: pink;
+            color: black;
+            border: none;
+            padding: 10px 15px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: green;
+            color: black;
+        }
+        .category {
+            margin-bottom: 40px;
+        }
+        label {
+            font-weight: bold;
+        }
+        .credit {
+          margin-top: 40px;
+          text-align: center;
+          font-size: 15px;
+          color: #444;
+        }
+        .credit a {
+          color: #0d47a1;
+          text-decoration: none;
+          font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Google Dorking Tool</h1>
+    <div class="container">
+        <label for="domain">Enter Domain for Subdomain Queries:</label>
+        <input type="text" id="domain" placeholder="example.com" style="width: 100%; margin-bottom: 20px; padding: 10px;">
+
+        <button onclick="addUrlPrefix()">Add URL Prefix</button>
+        <button onclick="generateSubdomainQueries()">Generate Subdomain Queries</button>
+        <button onclick="clearOutput()">Clear Output</button>
+
+        <div id="output"></div>
+    </div>
+    <div class="credit">
+      🔗 By <a href="https://#" target="_blank">@James</a>
+    </div>
+ <script>
+    async function loadDorks() {
+        const response = await fetch('dorks.txt');
+        const text = await response.text();
+        const categories = text.split(/\n(?=\d\.)/).filter(section => section.trim() !== ''); // Split categories robustly
+        const outputDiv = document.getElementById('output');
+        outputDiv.innerHTML = '';
+
+        categories.forEach((category, index) => {
+            const [categoryName, ...dorks] = category.split(/\n/).filter(line => line.trim() !== '');
+            const textareaId = `category-${index + 1}`;
+
+            const categoryDiv = document.createElement('div');
+            categoryDiv.className = 'category';
+            categoryDiv.innerHTML = `
+                <h2>${index + 1}. ${categoryName.trim()}</h2>
+                <textarea id="${textareaId}" readonly>${dorks.join('\n')}</textarea>
+            `;
+            outputDiv.appendChild(categoryDiv);
+        });
+    }
+
+    function addUrlPrefix() {
+        document.querySelectorAll('.category textarea').forEach(textarea => {
+            const dorks = textarea.value.split(/\n/);
+            textarea.value = dorks.map(dork => `https://www.google.com/search?q=${dork}`).join('\n');
+        });
+    }
+
+    function generateSubdomainQueries() {
+        const domain = document.getElementById('domain').value.trim();
+        if (!domain) {
+            alert('Please enter a domain!');
+            return;
+        }
+
+        const subdomainScope = `site:${domain} | site:*.${domain} | site:*.*.${domain} | site:*.*.*.${domain} | site:*.*.*.*.${domain} | site:*.*.*.*.*.${domain}`;
+        document.querySelectorAll('.category textarea').forEach(textarea => {
+            const dorks = textarea.value.split(/\n/);
+            textarea.value = dorks.map(dork => `${dork} ${subdomainScope}`).join('\n');
+        });
+    }
+
+    function clearOutput() {
+        document.querySelectorAll('.category textarea').forEach(textarea => {
+            textarea.value = '';
+        });
+    }
+
+    window.onload = loadDorks;
+</script>
+
+</body>
+</html>

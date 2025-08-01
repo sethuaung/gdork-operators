@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="keywords" content="GDork-Sample">
+  <meta name="description" content="Sample Google Dorking Templates for Class Training">
+  <meta name="author" content="Mosquito">
+  <link href="images/favicon_fe.ico" rel="icon">
+  <title>Find Latest Bug Bounty Programs</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #e0f7fa, #e1bee7);
+      padding: 20px;
+      line-height: 1.6;
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+      font-size: 28px;
+      margin-bottom: 20px;
+    }
+    select, button {
+      padding: 10px 15px;
+      margin: 10px;
+      font-size: 16px;
+      border-radius: 6px;
+    }
+    textarea {
+      width: 95%;
+      height: 140px;
+      margin: 10px auto 20px auto;
+      display: block;
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      resize: vertical;
+      background-color: #ffffff;
+    }
+    .section {
+      margin-bottom: 30px;
+      padding: 10px;
+      border-top: 2px dashed #999;
+    }
+    .section-title {
+      font-weight: bold;
+      font-size: 18px;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+    #openTabsBtn {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      cursor: pointer;
+      margin-top: -10px;
+    }
+    #openTabsBtn:hover {
+      background-color: #218838;
+    }
+    .center {
+      text-align: center;
+    }
+    .credit {
+      margin-top: 40px;
+      text-align: center;
+      font-size: 15px;
+      color: #444;
+    }
+    .credit a {
+      color: #0d47a1;
+      text-decoration: none;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Find Latest Bug Bounty Programs</h1>
+
+  <div class="center">
+    <label for="timeFilter">Select Time Filter:</label>
+    <select id="timeFilter">
+      <option value="h">Last Hour</option>
+      <option value="d">Last Day</option>
+      <option value="w" selected>Last Week</option>
+      <option value="y">Last Year</option>
+    </select>
+    <button onclick="generateUrls()">Generate URLs</button>
+  </div>
+
+  <div class="section">
+    <div class="section-title">📜 Dorks Used:</div>
+    <textarea id="dorkBox" readonly></textarea>
+  </div>
+
+  <div class="section">
+    <div class="section-title">🔗 Generated Google Dork URLs:</div>
+    <textarea id="urlBox" readonly></textarea>
+    <div class="center">
+      <button id="openTabsBtn" onclick="openAllUrls()">Open All URLs in New Tabs</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">🔗 Links:</div>
+    <textarea id="linksBox" readonly>
+https://cybersecuritywriteups.com/non-english-dorks-to-find-bug-bounty-vdp-programs-d799f0a5161c
+https://www.hhs.gov/vulnerability-disclosure-policy/index.html
+site-> https://kyber.nl/ -> Operating in accordance with -> iso27001 and gdpr
+
+    </textarea>
+  </div>
+
+  <div class="section">
+    <div class="section-title">💡 Tips:</div>
+    <textarea id="tipsBox" readonly>
+"Last Updated: April"
+"use different region"
+[Top sites security.txt (I will create a bash script to automate this section, and I will post it soon!)
+
+  1. Download top 1000000 domains from https://radar.cloudflare.com/domains
+  2. Check security.txt and .well-known/security.txt for main domain
+  3. Store these two paths in a paths file.
+  4. Run the two commands below:
+     cat domains | httpx -path paths -mc 200 -cl -ct -o result1
+     cat domains | while read d; do echo "www.$d"; done | httpx -path paths -mc 200 -cl -ct -o result2 ]
+    </textarea>
+  </div>
+
+ <div class="repo">
+    🔗 REPO link <a href="#" target="_blank">REPO</a>
+  </div>
+  <div class="credit">
+    🔗 By <a href="https://#" target="_blank">@James</a>
+  </div>
+
+  <script>
+    const dorks = [
+    "a token of our appreciation for helping",
+    "\"The amount of the reward will be determined\"",
+    "\"we offer a reward for every report of a security\"",
+    "\"As a thank you for your help, we offer a reward\"",
+    "\"As a token of our gratitude for your assistance\" \"vulnerability\"",
+    "\"The minimum reward will be\" \"Do not take advantage of the vulnerability\"",
+    "\"Whether we offer a reward\" \"vulnerability\"",
+    "\"reward\" \"We will respond to your report within\"",
+    "\"reward\" \"We will respond to your report within\" \"we consider the security of our systems\"",
+    "\"If you are a security researcher\" \"reward\" -site:hackerone.com -site:bugcrowd.com -site:yeswehack.com -site:intigriti.com",
+    "\"The size of the reward\" \"vulnerability\"",
+    "\"buy bitcoins\" \"bug bounty\"",
+    "inurl:bug bounty intext:\"rupees\" | inurl:responsible disclosure intext:\"INR\" | inurl:bug bounty intext:\"₹\"",
+    "\"responsible disclosure\" intext:\"you may be eligible for monetary compensation\"",
+    "inurl:bounty \"reward\" \"scope\" \"report\" -yeswehack -hackerone -bugcrowd -synack -openbugbounty",
+    "\"The amount of the reward will be determined\" \"responsibledisclosure.nl\" -site:responsibledisclosure.nl",
+    "\"following domains\" \"reward\" \"vulnerability\" \"policy\"",
+    "\"Floor Terra\" \"security\" \"vulnerability\" \"reward\"",
+    "\"happy to issue a certificate\" \"vulnerability\" \"security\"",
+    "\"If you believe that you have found a security vulnerability on\"",
+    "\"But no matter how much effort we put into system security\"",
+    "\"Floor Terra\" \"NCSC\"",
+    "\"written by Floor Terra\" -site:responsibledisclosure.nl -site:hackerone.com -site:github.com",
+    "\"If you find a vulnerability in our systems\"",
+    "\"If you have found a weak spot in one of our systems\"",
+    "\"we consider the security of our systems\" \"email your findings\"",
+    "\"Policy applies to all\" \"vulnerability\"",
+    "\"Despite our efforts\" \"vulnerability\" \"security\" \"Email\"",
+    "\"If you think you have identified a security vulnerability\"",
+    "\"it is possible that a vulnerability\"",
+    "\"This policy is intended to give security researchers\"",
+    "\"If you wish, we will mention your name\" \"vulnerability\"",
+    "title:\"security\" AND \"Out of scope\"",
+    "\"bounty\"",
+    "site:*/security.txt | site:*/*/security.txt | site:*/*/*/security.txt",
+    "site:*/responsible-disclosure | site:*/*/responsible-disclosure | site:*/*/*/responsible-disclosure | site:*/*/*/*/responsible-disclosure | site:*/*/*/*/*/responsible-disclosure | site:*/responsible-disclosure-form | site:*/responsible-disclosure-form-*",
+    "site:*/vulnerability-disclosure* | site:*/*/vulnerability-disclosure* | site:*/*/*/vulnerability-disclosure* | site:*/*/*/*/vulnerability-disclosure* | site:*/*/*/*/*/vulnerability-disclosure*",
+    "site:*/vulnerability-disclosure-* | site:*/*/vulnerability-disclosure-* | site:*/*/*/vulnerability-disclosure-* | site:*/*/*/*/vulnerability-disclosure-* | site:*/*/*/*/*/vulnerability-disclosure-*",
+    "site:*/responsible-disclosure-form* | site:*/*/responsible-disclosure-form* | site:*/*/*/responsible-disclosure-form* | site:*/*/*/*/responsible-disclosure-form* | site:*/*/*/*/*/responsible-disclosure-form*",
+    "site:*/responsible-disclosure-form-* | site:*/*/responsible-disclosure-form-* | site:*/*/*/responsible-disclosure-form-* | site:*/*/*/*/responsible-disclosure-form-* | site:*/*/*/*/*/responsible-disclosure-form-*",
+    "\"We value the input of security researchers\"",
+    "\"Creative Commons Attribution\" \"vulnerability\"",
+    "\"Creative Commons Attribution\" \"security\"",
+    "\"Creative Commons Attribution\" \"offer\"",
+    "\"Creative Commons Attribution\" \"reward\"",
+    "\"Creative Commons Attribution\" \"token\"",
+    "\"Creative Commons Attribution\" \"bounty\"",
+    "\"Creative Commons Attribution\" \"certificate\"",
+    "\"Creative Commons Attribution\" \"hall of fame\"",
+    "\"Creative Commons Attribution\" \"wall of fame\"",
+    "\"Creative Commons Attribution\" \"gift\"",
+    "\"Creative Commons Attribution\" \"Email your findings\"",
+    "intext:security intext:\"Wall of Fame\" AND \"Out of scope\"",
+    "intext:\"report vulnerabilities to us at\"",
+    "\"reward\" \"submit vulnerability report\" | \"powered by bugcrowd\" | \"powered by hackerone\"",
+    "\"submit vulnerability report\" | \"powered by bugcrowd\" | \"powered by hackerone\" -inurl:news -site:*.de",
+    "\"responsibledisclosure.nl\" -site:responsibledisclosure.nl"
+];
+
+    let generatedUrls = [];
+
+    function generateUrls() {
+      const time = document.getElementById("timeFilter").value;
+      const urlBox = document.getElementById("urlBox");
+      const dorkBox = document.getElementById("dorkBox");
+
+      generatedUrls = [];
+      let urlText = "";
+      let dorkText = "";
+
+      dorks.forEach(dork => {
+        const encodedQuery = encodeURIComponent(dork);
+        const url = `https://www.google.com/search?q=${encodedQuery}&tbs=qdr:${time}`;
+        generatedUrls.push(url);
+        urlText += url + "\n";
+        dorkText += dork + "\n";
+      });
+
+      urlBox.value = urlText.trim();
+      dorkBox.value = dorkText.trim();
+    }
+
+    function openAllUrls() {
+      if (generatedUrls.length === 0) {
+        alert("Please generate URLs first!");
+        return;
+      }
+
+      generatedUrls.forEach((url, i) => {
+        setTimeout(() => {
+          window.open(url, '_blank');
+        }, i * 400);
+      });
+    }
+  </script>
+
+</body>
+</html>

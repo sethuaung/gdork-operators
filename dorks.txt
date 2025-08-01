@@ -1,0 +1,134 @@
+
+
+1.Sensitive Files and Data Exposure📜
+intitle:"index of"
+intext:"aws_access_key_id" | intext:"aws_secret_access_key" filetype:json | filetype:yaml | filetype:yml
+ext:php intitle:phpinfo
+{intitle: indexof/.git }
+inurl:email= | inurl:phone= | inurl:password= | inurl:secret=
+*/*
+ext:axd
+ext:key PRIVATE KEY
+ext:trace.axd
+ext:xml
+ext:conf
+ext:cnf
+ext:reg
+ext:ini
+ext:sql
+ext:dbf
+ext:mdb
+ext:env
+ext:sh
+ext:log
+ext:bak
+ext:backup
+ext:swp
+ext:old
+ext:~
+ext:git
+ext:svn
+ext:htpasswd
+ext:htaccess
+
+
+
+2. Juicy Extensions/Documents📁
+ext:doc
+ext:docx
+ext:odt
+ext:pdf
+ext:rtf
+ext:sxw
+ext:psw
+ext:ppt
+ext:pptx
+ext:pps
+ext:csv
+ext:xls | ext:xlsx
+ext:yml | ext:yaml
+intext:“confidential” | intext:“Not for Public Release” | intext:”internal use only” | intext:“do not distribute”
+
+
+3. Errors and Debug Information🛑
+"join.slack"
+inurl:"error"
+intitle:"exception"
+intitle:"failure"
+intitle:"server at"
+intitle:"Dashboard"
+inurl:exception
+"database error"
+"SQL syntax"
+"undefined index"
+"unhandled exception"
+"stack trace"
+site:*/stats
+site:*/awstats
+site:*/*.php
+site:*/index.*
+"Parent Directory" "Last modified" monitoring
+inurl:conf
+inurl:env
+inurl:cgi
+inurl:bin
+inurl:etc
+inurl:root
+inurl:sql
+inurl:backup
+inurl:admin
+inurl:php
+
+4. injection vulnerabilty (xss,lfi,rce,redir) 💉
+inurl:redir
+inurl:url
+inurl:redirect
+inurl:return
+inurl:src=http
+inurl:r=http
+inurl:q=
+inurl:s=
+inurl:search=
+inurl:query=
+inurl:keyword=
+inurl:lang=
+inurl:url=
+inurl:return=
+inurl:next=
+inurl:redirect=
+inurl:redir=
+inurl:ret=
+inurl:r2=
+inurl:id=
+inurl:pid=
+inurl:category=
+inurl:cat=
+inurl:action=
+inurl:sid=
+inurl:dir=
+
+5. extra
+inurl:database
+filetype:pdf "Assessment Report" nessus
+allintext:"Assessment Report"
+intitle:"parent directory"
+filetype:xls inurl:"email.xls"
+intext:"A syntax error has occurred"
+intext:"ASP.NET_SessionId" "data source="
+intext:"About Mac OS Personal Web Sharing"
+intext:"An illegal character has been found in the statement" -"previous message"
+intext:"Can't connect to local" intitle:warning
+intitle:warning
+intext:"HostingAccelerator"
+intext:"Thank you for your order" +receipt
+intext:"Thank you for your purchase" +download
+intext:"SQL Server Driver][SQL Server]Line 1: Incorrect syntax near"
+allintext:@gmail.com OR intext:"@outlook.com"
+intitle:"report" ("qualys" | "acunetix" | "nessus" | "netsparker" | "Arachni" | "nmap") filetype:html | ext:doc | ext:docx | ext:odt | ext:pdf | ext:rtf | ext:sxw | ext:psw | ext:ppt | ext:pptx | ext:pps | ext:csv
+inurl:"ReportViewer.aspx"
+db.key OR server.key OR ftp.key OR exchange.key OR host.key OR mail.key
+intext:e10adc3949ba59abbe56e057f20f883e
+AndroidManifest ext:xml -github -gitlab -googlesource
+inurl:"plesk-stat"
+intitle:"Control Panel"
+intext:"GET http://" OR intext:"GET http://" ext:txt
