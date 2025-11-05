@@ -1,532 +1,517 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" class="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dev Toolkit Pro</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/lucide/dist/lucide.min.js"></script>
-    
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-        @import url('https://rsms.me/inter/inter.css');
-        html { font-family: 'Inter', sans-serif; }
-        .tab-active {
-            background-color: #4f46e5;
-            color: #ffffff;
-        }
-        .sidebar-item:hover {
-            background-color: #374151;
-        }
-        .recipe-item {
-            border-left: 4px solid #4f46e5;
-        }
-        .hide {
-            display: none;
-        }
-        .status-200 { background-color: #10B981; }
-        .status-300 { background-color: #F59E0B; }
-        .status-400 { background-color: #EF4444; }
-        .status-500 { background-color: #DC2626; }
-        textarea {
-            resize: vertical;
-        }
-    </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Dev Toolkit Pro</title>
+
+  <!-- Basic SEO / UX -->
+  <meta name="description" content="Dev Toolkit Pro — Data Kitchen and API Tester for quick transformations and HTTP inspection." />
+  <meta name="theme-color" content="#111827" />
+
+  <!-- Content Security Policy (baseline). Tweak after you decide how to serve assets.
+       If you self-host JS/CSS remove the external hosts and add 'self' where appropriate. -->
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self'; script-src 'self' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'unsafe-inline' 'self' https://rsms.me; img-src 'self' data:; connect-src 'self' https: http:; frame-ancestors 'none'; base-uri 'self';">
+
+  <!-- Tailwind CDN (pinned to latest stable). For production: prefer building Tailwind and serving CSS locally. -->
+  <script src="https://cdn.tailwindcss.com" integrity="SRI_PLACEHOLDER_TAILWIND" crossorigin="anonymous" defer></script>
+
+  <!-- Pako for gzip/ungzip -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js" integrity="SRI_PLACEHOLDER_PAKO" crossorigin="anonymous" defer></script>
+
+  <!-- Lucide icons -->
+  <script src="https://cdn.jsdelivr.net/npm/lucide/dist/lucide.min.js" integrity="SRI_PLACEHOLDER_LUCIDE" crossorigin="anonymous" defer></script>
+
+  <!-- Inter font (recommend self-hosting for production) -->
+  <link rel="preload" href="https://rsms.me/inter/inter.css" as="style" crossorigin="anonymous">
+  <style>@import url('https://rsms.me/inter/inter.css');</style>
+
+  <style>
+    :root {
+      --bg: #0b1220;
+      --muted: #94a3b8;
+      --accent: #4f46e5;
+    }
+    html,body { height:100%; }
+    body {
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      background: #0f1724;
+      color: #e6eef8;
+      margin:0;
+    }
+    .tab-active{ background-color:var(--accent); color:#fff; }
+    .sidebar-item:hover{ background-color:#374151; }
+    .recipe-item{ border-left:4px solid var(--accent); }
+    .hide{ display:none; }
+    .status-200{ background-color:#10B981; }
+    .status-300{ background-color:#F59E0B; }
+    .status-400{ background-color:#EF4444; }
+    .status-500{ background-color:#DC2626; }
+    textarea { resize: vertical; min-height:120px; }
+    /* Focus styles for accessibility */
+    :where(button, input, textarea, select):focus { outline: 3px solid rgba(79,70,229,0.25); outline-offset: 2px; }
+  </style>
 </head>
-<body class="bg-gray-900 text-gray-200 flex flex-col h-screen">
+<body class="bg-gray-900 text-gray-200 flex flex-col min-h-screen">
 
-    <header class="bg-gray-800 border-b border-gray-700 p-4 flex justify-between items-center">
-        <h1 class="text-xl font-bold text-white flex items-center">
-            <i data-lucide="wrench" class="mr-2"></i>
-            Dev Toolkit Pro
-        </h1>
-        <nav id="main-tabs">
-            <button data-tab="data-kitchen" class="px-4 py-2 rounded-md text-sm font-medium transition-colors tab-active">
-                <i data-lucide="chef-hat" class="inline-block w-4 h-4 mr-1"></i> Data Kitchen
-            </button>
-            <button data-tab="api-tester" class="px-4 py-2 rounded-md text-sm font-medium transition-colors">
-                <i data-lucide="send" class="inline-block w-4 h-4 mr-1"></i> API Tester
-            </button>
-        </nav>
-    </header>
+  <header class="bg-gray-800 border-b border-gray-700 p-4 flex justify-between items-center">
+    <h1 class="text-xl font-bold text-white flex items-center gap-2">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false"><path d="M3 3l18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      Dev Toolkit Pro
+    </h1>
 
-    <main class="flex-grow overflow-hidden">
-        
-        <div id="data-kitchen-view" class="h-full flex flex-col md:flex-row">
-            <aside class="w-full md:w-64 bg-gray-800 border-r border-gray-700 p-4 flex-shrink-0 overflow-y-auto">
-                <div class="relative mb-4">
-                    <input type="text" id="op-search" placeholder="Search operations..." class="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-                    <i data-lucide="search" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
-                </div>
-                <div id="operations-list"></div>
-                 <button id="show-kitchen-guide" class="mt-4 w-full flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded transition-colors">
-                    <i data-lucide="help-circle" class="mr-2"></i> User Guide
-                </button>
-            </aside>
-            
-            <section class="flex-grow p-4 flex flex-col bg-gray-900/50">
-                <h2 class="text-lg font-semibold mb-2 flex items-center"><i data-lucide="blender" class="mr-2"></i>Recipe <span id="recipe-count" class="ml-2 text-xs bg-indigo-500 text-white rounded-full px-2 py-0.5">0</span></h2>
-                <div id="recipe-area" class="bg-gray-800 border border-gray-700 rounded-md p-4 mb-4 min-h-[150px] overflow-y-auto">
-                    <p class="text-gray-500 text-center">Add operations from the left panel to build your recipe.</p>
-                </div>
-                 <button id="clear-recipe" class="mb-4 w-full md:w-auto self-start flex items-center bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded transition-colors">
-                    <i data-lucide="trash-2" class="mr-2"></i> Clear Recipe
-                </button>
-            </section>
+    <nav id="main-tabs" role="tablist" aria-label="Main tabs" class="flex gap-2">
+      <button data-tab="data-kitchen" role="tab" aria-selected="true" class="px-4 py-2 rounded-md text-sm font-medium transition-colors tab-active">Data Kitchen</button>
+      <button data-tab="api-tester" role="tab" aria-selected="false" class="px-4 py-2 rounded-md text-sm font-medium transition-colors">API Tester</button>
+    </nav>
+  </header>
 
-            <section class="flex-grow p-4 flex flex-col bg-gray-900/80">
-                <div class="flex-grow flex flex-col">
-                    <label for="kitchen-input" class="font-semibold mb-2">Input</label>
-                    <textarea id="kitchen-input" class="flex-grow w-full bg-gray-800 border border-gray-700 rounded-md p-3 text-sm font-mono focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="Paste your input data here..."></textarea>
-                </div>
-                <div class="flex-grow flex flex-col mt-4">
-                    <label for="kitchen-output" class="font-semibold mb-2">Output</label>
-                    <textarea id="kitchen-output" readonly class="flex-grow w-full bg-gray-900 border border-gray-700 rounded-md p-3 text-sm font-mono" placeholder="Output will appear here..."></textarea>
-                </div>
-            </section>
+  <main class="flex-grow overflow-hidden">
+    <div id="data-kitchen-view" class="h-full flex flex-col md:flex-row">
+
+      <aside class="w-full md:w-64 bg-gray-800 border-r border-gray-700 p-4 flex-shrink-0 overflow-y-auto" aria-label="Operations">
+        <label for="op-search" class="sr-only">Search operations</label>
+        <div class="relative mb-4">
+          <input id="op-search" type="search" placeholder="Search operations..." class="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-sm" />
+        </div>
+        <div id="operations-list" aria-live="polite"></div>
+
+        <button id="show-kitchen-guide" class="mt-4 w-full flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded">User Guide</button>
+      </aside>
+
+      <section class="flex-grow p-4 flex flex-col bg-gray-900/50">
+        <h2 class="text-lg font-semibold mb-2 flex items-center gap-2">Recipe <span id="recipe-count" class="ml-2 text-xs bg-indigo-500 text-white rounded-full px-2 py-0.5">0</span></h2>
+        <div id="recipe-area" class="bg-gray-800 border border-gray-700 rounded-md p-4 mb-4 min-h-[150px] overflow-y-auto" aria-live="polite">
+          <p class="text-gray-500 text-center">Add operations from the left panel to build your recipe.</p>
+        </div>
+        <button id="clear-recipe" class="mb-4 w-full md:w-auto self-start bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">Clear Recipe</button>
+      </section>
+
+      <section class="flex-grow p-4 flex flex-col bg-gray-900/80">
+        <div class="flex-grow flex flex-col">
+          <label for="kitchen-input" class="font-semibold mb-2">Input</label>
+          <textarea id="kitchen-input" class="flex-grow w-full bg-gray-800 border border-gray-700 rounded-md p-3 text-sm font-mono" placeholder="Paste your input data here..."></textarea>
         </div>
 
-        <div id="api-tester-view" class="h-full flex flex-col p-4 hide">
-            <div class="flex items-center mb-4">
-                <select id="api-method" class="bg-gray-700 border border-gray-600 rounded-l-md px-4 py-2 font-bold focus:outline-none">
-                    <option>GET</option>
-                    <option>POST</option>
-                    <option>PUT</option>
-                    <option>DELETE</option>
-                    <option>PATCH</option>
-                    <option>HEAD</option>
-                    <option>OPTIONS</option>
-                </select>
-                <input type="text" id="api-url" placeholder="https://api.example.com/data" class="flex-grow bg-gray-700 border-t border-b border-gray-600 px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-                <button id="api-send" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-r-md flex items-center">
-                    <span id="send-text">Send</span>
-                    <div id="send-spinner" class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin hide"></div>
-                </button>
-                 <button id="show-api-guide" class="ml-4 flex items-center bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded transition-colors">
-                    <i data-lucide="help-circle" class="mr-2"></i> Guide
-                </button>
-            </div>
-            
-             <p class="text-xs text-amber-400 mb-4 bg-amber-900/50 p-2 rounded-md border border-amber-400/30">
-                <i data-lucide="alert-triangle" class="inline w-4 h-4 mr-1"></i>
-                <strong>Note on CORS:</strong> Browser security (CORS) may block requests to APIs that do not explicitly allow it. For testing, consider using a browser extension that modifies CORS headers or a dedicated CORS proxy.
-            </p>
-
-            <div class="flex-grow grid grid-cols-1 md:grid-cols-2 gap-4 overflow-hidden">
-                <div class="flex flex-col">
-                    <h3 class="font-semibold mb-2 text-lg">Request</h3>
-                    <div class="bg-gray-800 border border-gray-700 rounded-md flex-grow flex flex-col">
-                        <div class="flex border-b border-gray-700" id="request-tabs">
-                            <button class="px-4 py-2 text-sm font-medium tab-active" data-tab="req-body">Body</button>
-                            <button class="px-4 py-2 text-sm font-medium" data-tab="req-headers">Headers</button>
-                        </div>
-                        <div class="p-2 flex-grow flex flex-col">
-                           <div id="req-body-view" class="h-full flex flex-col">
-                                <textarea id="api-body" class="flex-grow w-full bg-gray-700 border border-gray-600 rounded-md p-3 text-sm font-mono focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="Request body (e.g., JSON)"></textarea>
-                           </div>
-                            <div id="req-headers-view" class="hide h-full overflow-y-auto">
-                                <div id="headers-list"></div>
-                                <button id="add-header" class="mt-2 text-sm text-indigo-400 hover:text-indigo-300 flex items-center"><i data-lucide="plus" class="w-4 h-4 mr-1"></i> Add Header</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="flex flex-col">
-                    <h3 class="font-semibold mb-2 text-lg">Response</h3>
-                    <div class="bg-gray-800 border border-gray-700 rounded-md flex-grow flex flex-col overflow-hidden">
-                        <div class="flex items-center justify-between p-2 border-b border-gray-700 bg-gray-900/50">
-                            <div>
-                                <span class="font-bold">Status:</span>
-                                <span id="api-status" class="px-2 py-1 rounded-md text-sm font-semibold text-white">-</span>
-                            </div>
-                             <div>
-                                <span class="font-bold">Time:</span>
-                                <span id="api-time" class="px-2 py-1 rounded-md text-sm">-</span>
-                            </div>
-                             <div>
-                                <span class="font-bold">Size:</span>
-                                <span id="api-size" class="px-2 py-1 rounded-md text-sm">-</span>
-                            </div>
-                        </div>
-                        <div class="flex border-b border-gray-700" id="response-tabs">
-                             <button class="px-4 py-2 text-sm font-medium tab-active" data-tab="res-body">Body</button>
-                            <button class="px-4 py-2 text-sm font-medium" data-tab="res-headers">Headers</button>
-                        </div>
-                        <div class="p-2 flex-grow overflow-y-auto">
-                           <div id="res-body-view" class="h-full">
-                                <textarea id="api-response-body" readonly class="h-full w-full bg-gray-900 border border-gray-600 rounded-md p-3 text-sm font-mono"></textarea>
-                           </div>
-                           <div id="res-headers-view" class="hide">
-                                <pre id="api-response-headers" class="text-sm whitespace-pre-wrap"></pre>
-                           </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="flex-grow flex flex-col mt-4">
+          <label for="kitchen-output" class="font-semibold mb-2">Output</label>
+          <textarea id="kitchen-output" readonly class="flex-grow w-full bg-gray-900 border border-gray-700 rounded-md p-3 text-sm font-mono" placeholder="Output will appear here..."></textarea>
         </div>
-    </main>
-
-    <div id="guide-modal" class="hide fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50">
-        <div class="bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col">
-            <div class="flex justify-between items-center p-4 border-b border-gray-700">
-                <h2 id="guide-title" class="text-xl font-bold"></h2>
-                <button id="close-guide" class="text-gray-400 hover:text-white">
-                    <i data-lucide="x"></i>
-                </button>
-            </div>
-            <div id="guide-content" class="p-6 overflow-y-auto"></div>
-        </div>
+      </section>
     </div>
 
-    <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const mainTabs = document.getElementById('main-tabs');
-        const dataKitchenView = document.getElementById('data-kitchen-view');
-        const apiTesterView = document.getElementById('api-tester-view');
-        
-        mainTabs.addEventListener('click', (e) => {
-            const button = e.target.closest('button');
-            if (!button) return;
+    <div id="api-tester-view" class="h-full flex flex-col p-4 hide" aria-hidden="true">
+      <div class="flex items-center mb-4">
+        <select id="api-method" class="bg-gray-700 border border-gray-600 rounded-l-md px-4 py-2 font-bold">
+          <option>GET</option>
+          <option>POST</option>
+          <option>PUT</option>
+          <option>DELETE</option>
+          <option>PATCH</option>
+          <option>HEAD</option>
+          <option>OPTIONS</option>
+        </select>
+        <input id="api-url" type="url" placeholder="https://api.example.com/data" class="flex-grow bg-gray-700 border-t border-b border-gray-600 px-3 py-2 text-sm" />
+        <button id="api-send" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-r-md flex items-center">
+          <span id="send-text">Send</span>
+          <div id="send-spinner" class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin hide" aria-hidden="true"></div>
+        </button>
+        <button id="show-api-guide" class="ml-4 bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">Guide</button>
+      </div>
 
-            Array.from(mainTabs.children).forEach(child => child.classList.remove('tab-active'));
-            button.classList.add('tab-active');
+      <p class="text-xs text-amber-400 mb-4 bg-amber-900/50 p-2 rounded-md border border-amber-400/30">
+        <strong>Note on CORS:</strong> Browser security (CORS) may block requests to APIs that do not explicitly allow it.
+      </p>
 
-            dataKitchenView.classList.toggle('hide', button.dataset.tab !== 'data-kitchen');
-            apiTesterView.classList.toggle('hide', button.dataset.tab !== 'api-tester');
-        });
+      <div class="flex-grow grid grid-cols-1 md:grid-cols-2 gap-4 overflow-hidden">
+        <div class="flex flex-col">
+          <h3 class="font-semibold mb-2 text-lg">Request</h3>
+          <div class="bg-gray-800 border border-gray-700 rounded-md flex-grow flex flex-col">
+            <div class="flex border-b border-gray-700" id="request-tabs">
+              <button class="px-4 py-2 text-sm font-medium tab-active" data-tab="req-body">Body</button>
+              <button class="px-4 py-2 text-sm font-medium" data-tab="req-headers">Headers</button>
+            </div>
+            <div class="p-2 flex-grow flex flex-col">
+              <div id="req-body-view" class="h-full flex flex-col">
+                <textarea id="api-body" class="flex-grow w-full bg-gray-700 border border-gray-600 rounded-md p-3 text-sm font-mono" placeholder="Request body (e.g., JSON)"></textarea>
+              </div>
+              <div id="req-headers-view" class="hide h-full overflow-y-auto">
+                <div id="headers-list"></div>
+                <button id="add-header" class="mt-2 text-sm text-indigo-400 hover:text-indigo-300 flex items-center"><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> Add Header</button>
+              </div>
+            </div>
+          </div>
+        </div>
 
-        const guideModal = document.getElementById('guide-modal');
-        const guideTitle = document.getElementById('guide-title');
-        const guideContent = document.getElementById('guide-content');
-        const closeGuideBtn = document.getElementById('close-guide');
-        
-        const openGuide = (title, content) => {
-            guideTitle.textContent = title;
-            guideContent.innerHTML = content;
-            if (typeof lucide !== 'undefined') {
-                lucide.createIcons();
-            }
-            guideModal.classList.remove('hide');
-        };
-        const closeGuide = () => guideModal.classList.add('hide');
+        <div class="flex flex-col">
+          <h3 class="font-semibold mb-2 text-lg">Response</h3>
+          <div class="bg-gray-800 border border-gray-700 rounded-md flex-grow flex flex-col overflow-hidden">
+            <div class="flex items-center justify-between p-2 border-b border-gray-700 bg-gray-900/50">
+              <div><span class="font-bold">Status:</span> <span id="api-status" class="px-2 py-1 rounded-md text-sm font-semibold text-white">-</span></div>
+              <div><span class="font-bold">Time:</span> <span id="api-time" class="px-2 py-1 rounded-md text-sm">-</span></div>
+              <div><span class="font-bold">Size:</span> <span id="api-size" class="px-2 py-1 rounded-md text-sm">-</span></div>
+            </div>
 
-        closeGuideBtn.addEventListener('click', closeGuide);
-        guideModal.addEventListener('click', (e) => {
-            if (e.target === guideModal) closeGuide();
-        });
-        
-        const kitchenGuideContent = `
-            <h3 class="font-bold text-lg mb-2 text-indigo-400">Welcome to the Data Kitchen!</h3>
-            <p class="mb-4">This tool allows you to transform data by applying a series of operations, much like a recipe. The output is generated automatically as you type or change the recipe.</p>
-            
-            <h4 class="font-semibold mb-2">How It Works:</h4>
-            <ul class="list-disc list-inside space-y-2 mb-4">
-                <li><strong>Operations Panel (Left):</strong> Find all available data transformations here. Use the search bar to quickly filter through the list. Click on an operation to add it to your recipe.</li>
-                <li><strong>Recipe Panel (Middle):</strong> This is where you build your sequence of operations. Operations are applied from top to bottom. You can reorder them by dragging and dropping, or remove an operation by clicking the 'X' button.</li>
-                <li><strong>Input/Output (Right):</strong> Enter your raw data in the 'Input' box. The transformed data will instantly appear in the 'Output' box below, updated in real-time.</li>
-            </ul>
+            <div class="flex border-b border-gray-700" id="response-tabs">
+              <button class="px-4 py-2 text-sm font-medium tab-active" data-tab="res-body">Body</button>
+              <button class="px-4 py-2 text-sm font-medium" data-tab="res-headers">Headers</button>
+            </div>
 
-            <h4 class="font-semibold mb-2">Controls:</h4>
-            <ul class="list-disc list-inside space-y-2">
-                 <li><strong>Add Operation:</strong> Click an operation in the left panel.</li>
-                 <li><strong>Remove Operation:</strong> Click the <i data-lucide="x-circle" class="inline w-4 h-4 text-red-400"></i> icon on a recipe item.</li>
-                 <li><strong>Clear Recipe:</strong> Use the "Clear Recipe" button to remove all operations.</li>
-            </ul>
-        `;
-        document.getElementById('show-kitchen-guide').addEventListener('click', () => openGuide('Data Kitchen User Guide', kitchenGuideContent));
+            <div class="p-2 flex-grow overflow-y-auto">
+              <div id="res-body-view" class="h-full">
+                <textarea id="api-response-body" readonly class="h-full w-full bg-gray-900 border border-gray-600 rounded-md p-3 text-sm font-mono"></textarea>
+              </div>
+              <div id="res-headers-view" class="hide">
+                <pre id="api-response-headers" class="text-sm whitespace-pre-wrap"></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
 
-        const apiGuideContent = `
-            <h3 class="font-bold text-lg mb-2 text-indigo-400">Welcome to the API Tester!</h3>
-            <p class="mb-4">This tool helps you make HTTP requests to any API endpoint and inspect the response, right from your browser.</p>
-            
-            <h4 class="font-semibold mb-2">Building a Request:</h4>
-            <ol class="list-decimal list-inside space-y-2 mb-4">
-                <li><strong>Method & URL:</strong> Select the HTTP method (GET, POST, etc.) and enter the full API endpoint URL.</li>
-                <li><strong>Body (for POST, PUT, PATCH):</strong> Switch to the 'Body' tab in the Request panel and enter your request payload (e.g., JSON data).</li>
-                <li><strong>Headers:</strong> Switch to the 'Headers' tab to add or modify request headers like 'Content-Type' or 'Authorization'. Click 'Add Header' to create a new key-value pair.</li>
-                <li><strong>Send:</strong> Click the 'Send' button to execute the request.</li>
-            </ol>
+  <div id="guide-modal" class="hide fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col">
+      <div class="flex justify-between items-center p-4 border-b border-gray-700">
+        <h2 id="guide-title" class="text-xl font-bold"></h2>
+        <button id="close-guide" class="text-gray-400 hover:text-white" aria-label="Close guide">✕</button>
+      </div>
+      <div id="guide-content" class="p-6 overflow-y-auto"></div>
+    </div>
+  </div>
 
-            <h4 class="font-semibold mb-2">Inspecting the Response:</h4>
-            <ul class="list-disc list-inside space-y-2 mb-4">
-                 <li><strong>Status, Time, Size:</strong> Key metrics are displayed at the top of the Response panel. The status code is color-coded for quick identification.</li>
-                 <li><strong>Body & Headers:</strong> Use the tabs in the Response panel to view the response payload and the full list of response headers.</li>
-            </ul>
+  <script>
+  document.addEventListener('DOMContentLoaded', () => {
 
-            <h4 class="font-bold text-amber-400 mt-4 mb-2">Important Note on CORS</h4>
-            <p class="text-sm">For security reasons, web browsers enforce a 'Cross-Origin Resource Sharing' (CORS) policy. If the API server you are testing does not send the correct CORS headers to allow requests from this web page, the request will be blocked by your browser and will fail. This is a browser limitation, not a bug in this tool. To work around this, you can use a browser extension that disables CORS for development purposes.</p>
-        `;
-        document.getElementById('show-api-guide').addEventListener('click', () => openGuide('API Tester User Guide', apiGuideContent));
+    // --- Helpers for correct unicode Base64 and Hex conversion ---
+    function btoaUtf8(str) {
+      // encode to UTF-8 then base64
+      const bytes = new TextEncoder().encode(str);
+      let binary = '';
+      bytes.forEach(b => binary += String.fromCharCode(b));
+      return btoa(binary);
+    }
+    function atobUtf8(b64) {
+      const binary = atob(b64);
+      const bytes = new Uint8Array([...binary].map(ch => ch.charCodeAt(0)));
+      return new TextDecoder().decode(bytes);
+    }
+    function toHex(s) {
+      return Array.from(s).map(c => c.charCodeAt(0).toString(16).padStart(2,'0')).join('');
+    }
+    function fromHex(s) {
+      if (!s) return '';
+      const pairs = s.match(/.{1,2}/g) || [];
+      return pairs.map(p => String.fromCharCode(parseInt(p, 16))).join('');
+    }
 
-        const ops = {
-            'Encoding': [
-                { name: 'To Base64', func: (s) => btoa(unescape(encodeURIComponent(s))) },
-                { name: 'From Base64', func: (s) => decodeURIComponent(escape(atob(s))) },
-                { name: 'URL Encode', func: encodeURIComponent },
-                { name: 'URL Decode', func: decodeURIComponent },
-                { name: 'To Hex', func: (s) => Array.from(s).map(c => c.charCodeAt(0).toString(16).padStart(2, '0')).join('') },
-                { name: 'From Hex', func: (s) => s.match(/.{1,2}/g).map(byte => String.fromCharCode(parseInt(byte, 16))).join('') }
-            ],
-            'Hashing': [
-                { name: 'MD5', func: async (s) => await digestMessage(s, 'MD5') },
-                { name: 'SHA-1', func: async (s) => await digestMessage(s, 'SHA-1') },
-                { name: 'SHA-256', func: async (s) => await digestMessage(s, 'SHA-256') },
-                { name: 'SHA-512', func: async (s) => await digestMessage(s, 'SHA-512') },
-            ],
-            'Compression': [
-                { name: 'Gzip', func: (s) => pako.gzip(s, { to: 'string' }) },
-                { name: 'Gunzip', func: (s) => pako.ungzip(s, { to: 'string' }) },
-            ],
-            'Text': [
-                { name: 'To Lowercase', func: (s) => s.toLowerCase() },
-                { name: 'To Uppercase', func: (s) => s.toUpperCase() },
-                { name: 'Reverse', func: (s) => s.split('').reverse().join('') },
-                { name: 'Word Count', func: (s) => (s.match(/\b\w+\b/g) || []).length.toString() },
-                { name: 'Line Count', func: (s) => s.split('\n').length.toString() },
-            ]
-        };
+    // --- UI references
+    const mainTabs = document.getElementById('main-tabs');
+    const dataKitchenView = document.getElementById('data-kitchen-view');
+    const apiTesterView = document.getElementById('api-tester-view');
 
-        let recipe = [];
-        const operationsList = document.getElementById('operations-list');
-        const recipeArea = document.getElementById('recipe-area');
-        const kitchenInput = document.getElementById('kitchen-input');
-        const kitchenOutput = document.getElementById('kitchen-output');
-        const opSearch = document.getElementById('op-search');
-        
-        async function digestMessage(message, algorithm = 'SHA-256') {
-            const msgUint8 = new TextEncoder().encode(message);
-            const hashBuffer = await crypto.subtle.digest(algorithm, msgUint8);
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-        }
+    mainTabs.addEventListener('click', (e) => {
+      const button = e.target.closest('button');
+      if (!button) return;
+      Array.from(mainTabs.children).forEach(child => {
+        child.classList.remove('tab-active');
+        child.setAttribute('aria-selected','false');
+      });
+      button.classList.add('tab-active');
+      button.setAttribute('aria-selected','true');
 
-        const renderOps = (filter = '') => {
-            operationsList.innerHTML = '';
-            const lowerFilter = filter.toLowerCase();
-            for (const category in ops) {
-                const filteredOps = ops[category].filter(op => op.name.toLowerCase().includes(lowerFilter));
-                if (filteredOps.length > 0) {
-                    const categoryHeader = document.createElement('h4');
-                    categoryHeader.className = 'text-sm font-bold text-gray-400 mt-4 mb-2 uppercase';
-                    categoryHeader.textContent = category;
-                    operationsList.appendChild(categoryHeader);
-                    filteredOps.forEach(op => {
-                        const div = document.createElement('div');
-                        div.className = 'p-2 rounded-md cursor-pointer sidebar-item transition-colors';
-                        div.textContent = op.name;
-                        div.onclick = () => addOpToRecipe(op);
-                        operationsList.appendChild(div);
-                    });
-                }
-            }
-        };
-
-        const renderRecipe = () => {
-            recipeArea.innerHTML = '';
-             document.getElementById('recipe-count').textContent = recipe.length;
-            if (recipe.length === 0) {
-                recipeArea.innerHTML = `<p class="text-gray-500 text-center">Add operations from the left panel to build your recipe.</p>`;
-                return;
-            }
-            recipe.forEach((op, index) => {
-                const div = document.createElement('div');
-                div.className = 'bg-gray-700 p-2 rounded-md mb-2 flex justify-between items-center recipe-item';
-                div.textContent = op.name;
-                const removeBtn = document.createElement('button');
-                removeBtn.innerHTML = `<i data-lucide="x-circle" class="w-5 h-5 text-red-400 hover:text-red-300"></i>`;
-                removeBtn.onclick = () => removeOpFromRecipe(index);
-                div.appendChild(removeBtn);
-                recipeArea.appendChild(div);
-            });
-            if (typeof lucide !== 'undefined') {
-                lucide.createIcons();
-            }
-        };
-
-        const addOpToRecipe = (op) => {
-            recipe.push(op);
-            renderRecipe();
-            bake();
-        };
-        
-        const removeOpFromRecipe = (index) => {
-            recipe.splice(index, 1);
-            renderRecipe();
-            bake();
-        };
-
-        document.getElementById('clear-recipe').addEventListener('click', () => {
-            recipe = [];
-            renderRecipe();
-            bake();
-        });
-
-        const bake = async () => {
-            let data = kitchenInput.value;
-            try {
-                for (const op of recipe) {
-                    data = await op.func(data);
-                }
-                kitchenOutput.value = data;
-            } catch (e) {
-                kitchenOutput.value = `Error: ${e.message}`;
-            }
-        };
-
-        kitchenInput.addEventListener('input', bake);
-        opSearch.addEventListener('input', (e) => renderOps(e.target.value));
-        
-        renderOps();
-        renderRecipe();
-        
-        const apiMethod = document.getElementById('api-method');
-        const apiUrl = document.getElementById('api-url');
-        const apiSend = document.getElementById('api-send');
-        const sendText = document.getElementById('send-text');
-        const sendSpinner = document.getElementById('send-spinner');
-        const apiBody = document.getElementById('api-body');
-        const apiStatus = document.getElementById('api-status');
-        const apiTime = document.getElementById('api-time');
-        const apiSize = document.getElementById('api-size');
-        const apiResponseBody = document.getElementById('api-response-body');
-        const apiResponseHeaders = document.getElementById('api-response-headers');
-        
-        const addHeaderBtn = document.getElementById('add-header');
-        const headersList = document.getElementById('headers-list');
-        
-        const createHeaderInput = (key = '', value = '') => {
-            const div = document.createElement('div');
-            div.className = 'flex items-center mb-2';
-            div.innerHTML = `
-                <input type="text" placeholder="Key" class="w-1/2 bg-gray-700 border border-gray-600 rounded-l-md px-2 py-1 text-sm focus:outline-none" value="${key}">
-                <input type="text" placeholder="Value" class="w-1/2 bg-gray-700 border border-gray-600 rounded-r-md px-2 py-1 text-sm focus:outline-none" value="${value}">
-                <button class="ml-2 text-red-400 hover:text-red-300 remove-header">
-                    <i data-lucide="minus-circle" class="w-5 h-5"></i>
-                </button>
-            `;
-            headersList.appendChild(div);
-        };
-        
-        addHeaderBtn.addEventListener('click', () => {
-            createHeaderInput();
-            if (typeof lucide !== 'undefined') {
-                lucide.createIcons();
-            }
-        });
-
-        headersList.addEventListener('click', (e) => {
-            if (e.target.closest('.remove-header')) {
-                e.target.closest('.flex').remove();
-            }
-        });
-        
-        createHeaderInput('Content-Type', 'application/json');
-
-        const setupTabs = (tabsContainerId, viewContainer) => {
-            const tabs = document.getElementById(tabsContainerId);
-            tabs.addEventListener('click', (e) => {
-                const button = e.target.closest('button');
-                if (!button) return;
-                
-                Array.from(tabs.children).forEach(child => child.classList.remove('tab-active'));
-                button.classList.add('tab-active');
-                
-                Array.from(viewContainer.children).forEach(view => {
-                    view.classList.toggle('hide', view.id !== button.dataset.tab + '-view');
-                });
-            });
-        };
-        
-        setupTabs('request-tabs', document.querySelector('#req-body-view').parentElement);
-        setupTabs('response-tabs', document.querySelector('#res-body-view').parentElement);
-
-        apiSend.addEventListener('click', async () => {
-            const url = apiUrl.value;
-            if (!url) {
-                // Use a custom message box instead of alert()
-                const msgBox = document.createElement('div');
-                msgBox.className = "fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-4 bg-red-700 rounded-md shadow-lg text-white font-semibold z-50";
-                msgBox.textContent = "Please enter a URL.";
-                document.body.appendChild(msgBox);
-                setTimeout(() => msgBox.remove(), 2000);
-                return;
-            }
-            
-            sendText.classList.add('hide');
-            sendSpinner.classList.remove('hide');
-            apiSend.disabled = true;
-
-            const headers = new Headers();
-            document.querySelectorAll('#headers-list .flex').forEach(row => {
-                const inputs = row.querySelectorAll('input');
-                const key = inputs[0].value.trim();
-                const value = inputs[1].value.trim();
-                if (key) {
-                    headers.append(key, value);
-                }
-            });
-
-            const options = {
-                method: apiMethod.value,
-                headers: headers,
-            };
-
-            if (['POST', 'PUT', 'PATCH'].includes(options.method)) {
-                options.body = apiBody.value;
-            }
-            
-            const startTime = performance.now();
-            
-            try {
-                const response = await fetch(url, options);
-                const endTime = performance.now();
-                
-                apiTime.textContent = `${Math.round(endTime - startTime)} ms`;
-                
-                const statusClass = `status-${Math.floor(response.status / 100)}00`;
-                apiStatus.className = `px-2 py-1 rounded-md text-sm font-semibold text-white ${statusClass}`;
-                apiStatus.textContent = `${response.status} ${response.statusText}`;
-
-                let responseHeadersText = '';
-                response.headers.forEach((value, key) => {
-                    responseHeadersText += `${key}: ${value}\n`;
-                });
-                apiResponseHeaders.textContent = responseHeadersText;
-
-                const responseText = await response.text();
-                
-                try {
-                     const prettyJson = JSON.stringify(JSON.parse(responseText), null, 2);
-                     apiResponseBody.value = prettyJson;
-                } catch {
-                     apiResponseBody.value = responseText;
-                }
-               
-                apiSize.textContent = `${(new Blob([responseText]).size / 1024).toFixed(2)} KB`;
-
-            } catch (e) {
-                apiStatus.className = 'px-2 py-1 rounded-md text-sm font-semibold text-white status-400';
-                apiStatus.textContent = 'Request Failed';
-                apiResponseBody.value = `Error: ${e.message}\n\nThis might be a network error or a CORS issue. Check the browser console for more details.`;
-                apiTime.textContent = '-';
-                apiSize.textContent = '-';
-                apiResponseHeaders.textContent = '';
-            } finally {
-                sendText.classList.remove('hide');
-                sendSpinner.classList.add('hide');
-                apiSend.disabled = false;
-            }
-        });
-
-        if (typeof lucide !== 'undefined') {
-            lucide.createIcons();
-        }
+      const showKitchen = button.dataset.tab === 'data-kitchen';
+      dataKitchenView.classList.toggle('hide', !showKitchen);
+      apiTesterView.classList.toggle('hide', showKitchen);
+      dataKitchenView.setAttribute('aria-hidden', String(!showKitchen));
+      apiTesterView.setAttribute('aria-hidden', String(showKitchen));
     });
-    </script>
+
+    // --- Guides modal
+    const guideModal = document.getElementById('guide-modal');
+    const guideTitle = document.getElementById('guide-title');
+    const guideContent = document.getElementById('guide-content');
+    const closeGuideBtn = document.getElementById('close-guide');
+    function openGuide(title, content) {
+      guideTitle.textContent = title;
+      guideContent.innerHTML = content;
+      guideModal.classList.remove('hide');
+      guideModal.setAttribute('aria-hidden','false');
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
+    function closeGuide() {
+      guideModal.classList.add('hide');
+      guideModal.setAttribute('aria-hidden','true');
+    }
+    closeGuideBtn.addEventListener('click', closeGuide);
+    guideModal.addEventListener('click', e => { if (e.target === guideModal) closeGuide(); });
+
+    // --- Operations and recipe
+    const ops = {
+      'Encoding': [
+        { name: 'To Base64', func: (s) => btoaUtf8(String(s||'')) },
+        { name: 'From Base64', func: (s) => atobUtf8(String(s||'')) },
+        { name: 'URL Encode', func: (s) => encodeURIComponent(String(s||'')) },
+        { name: 'URL Decode', func: (s) => decodeURIComponent(String(s||'')) },
+        { name: 'To Hex', func: (s) => toHex(String(s||'')) },
+        { name: 'From Hex', func: (s) => fromHex(String(s||'')) }
+      ],
+      'Hashing': [
+        { name: 'MD5', func: async (s) => await digestMessage(String(s||''), 'MD5') },
+        { name: 'SHA-1', func: async (s) => await digestMessage(String(s||''), 'SHA-1') },
+        { name: 'SHA-256', func: async (s) => await digestMessage(String(s||''), 'SHA-256') },
+        { name: 'SHA-512', func: async (s) => await digestMessage(String(s||''), 'SHA-512') },
+      ],
+      'Compression': [
+        { name: 'Gzip', func: (s) => pako.gzip(String(s||''), { to: 'string' }) },
+        { name: 'Gunzip', func: (s) => pako.ungzip(String(s||''), { to: 'string' }) },
+      ],
+      'Text': [
+        { name: 'To Lowercase', func: (s) => String(s||'').toLowerCase() },
+        { name: 'To Uppercase', func: (s) => String(s||'').toUpperCase() },
+        { name: 'Reverse', func: (s) => String(s||'').split('').reverse().join('') },
+        { name: 'Word Count', func: (s) => ((String(s||'').match(/\b\w+\b/g) || []).length).toString() },
+        { name: 'Line Count', func: (s) => String(s||'').split('\\n').length.toString() },
+      ]
+    };
+
+    async function digestMessage(message, algorithm='SHA-256') {
+      // Note: SubtleCrypto supports SHA-*; MD5 isn't supported in most browsers.
+      if (algorithm === 'MD5') {
+        // MD5 via Web Crypto is not standard; return a placeholder or implement a JS MD5 lib
+        // For production, include a small MD5 library if you need MD5.
+        return 'md5-not-available-in-webcrypto';
+      }
+      const enc = new TextEncoder();
+      const data = enc.encode(message);
+      const hash = await crypto.subtle.digest(algorithm, data);
+      const hashArray = Array.from(new Uint8Array(hash));
+      return hashArray.map(b => b.toString(16).padStart(2,'0')).join('');
+    }
+
+    let recipe = [];
+    const operationsList = document.getElementById('operations-list');
+    const recipeArea = document.getElementById('recipe-area');
+    const kitchenInput = document.getElementById('kitchen-input');
+    const kitchenOutput = document.getElementById('kitchen-output');
+    const opSearch = document.getElementById('op-search');
+
+    function renderOps(filter='') {
+      operationsList.innerHTML = '';
+      const lower = filter.toLowerCase();
+      for (const category in ops) {
+        const filtered = ops[category].filter(o => o.name.toLowerCase().includes(lower));
+        if (filtered.length === 0) continue;
+        const h = document.createElement('h4');
+        h.className = 'text-sm font-bold text-gray-400 mt-4 mb-2 uppercase';
+        h.textContent = category;
+        operationsList.appendChild(h);
+        filtered.forEach(op => {
+          const div = document.createElement('div');
+          div.className = 'p-2 rounded-md cursor-pointer sidebar-item transition-colors';
+          div.tabIndex = 0;
+          div.textContent = op.name;
+          div.addEventListener('click', () => addOpToRecipe(op));
+          div.addEventListener('keydown', (e) => { if (e.key === 'Enter') addOpToRecipe(op); });
+          operationsList.appendChild(div);
+        });
+      }
+    }
+
+    function renderRecipe() {
+      recipeArea.innerHTML = '';
+      document.getElementById('recipe-count').textContent = recipe.length;
+      if (recipe.length === 0) {
+        recipeArea.innerHTML = `<p class="text-gray-500 text-center">Add operations from the left panel to build your recipe.</p>`;
+        return;
+      }
+      recipe.forEach((op, i) => {
+        const div = document.createElement('div');
+        div.className = 'bg-gray-700 p-2 rounded-md mb-2 flex justify-between items-center recipe-item';
+        const label = document.createElement('div');
+        label.textContent = op.name;
+        div.appendChild(label);
+        const removeBtn = document.createElement('button');
+        removeBtn.className = 'ml-3';
+        removeBtn.innerHTML = '✕';
+        removeBtn.title = 'Remove operation';
+        removeBtn.addEventListener('click', () => removeOpFromRecipe(i));
+        div.appendChild(removeBtn);
+        recipeArea.appendChild(div);
+      });
+    }
+
+    function addOpToRecipe(op) {
+      recipe.push(op);
+      renderRecipe();
+      bake();
+    }
+    function removeOpFromRecipe(i) {
+      recipe.splice(i,1);
+      renderRecipe();
+      bake();
+    }
+
+    document.getElementById('clear-recipe').addEventListener('click', () => {
+      recipe = [];
+      renderRecipe();
+      bake();
+    });
+
+    async function bake() {
+      let data = kitchenInput.value;
+      try {
+        for (const op of recipe) {
+          data = await op.func(data);
+        }
+        kitchenOutput.value = data;
+      } catch (err) {
+        kitchenOutput.value = `Error: ${err && err.message ? err.message : String(err)}`;
+      }
+    }
+    kitchenInput.addEventListener('input', bake);
+    opSearch.addEventListener('input', (e) => renderOps(e.target.value || ''));
+
+    // --- API Tester
+    const apiMethod = document.getElementById('api-method');
+    const apiUrl = document.getElementById('api-url');
+    const apiSend = document.getElementById('api-send');
+    const sendText = document.getElementById('send-text');
+    const sendSpinner = document.getElementById('send-spinner');
+    const apiBody = document.getElementById('api-body');
+    const apiStatus = document.getElementById('api-status');
+    const apiTime = document.getElementById('api-time');
+    const apiSize = document.getElementById('api-size');
+    const apiResponseBody = document.getElementById('api-response-body');
+    const apiResponseHeaders = document.getElementById('api-response-headers');
+
+    const addHeaderBtn = document.getElementById('add-header');
+    const headersList = document.getElementById('headers-list');
+
+    function createHeaderInput(key='', value='') {
+      const div = document.createElement('div');
+      div.className = 'flex items-center mb-2';
+      div.innerHTML = `
+        <input type="text" placeholder="Key" class="w-1/2 bg-gray-700 border border-gray-600 rounded-l-md px-2 py-1 text-sm" value="${key}">
+        <input type="text" placeholder="Value" class="w-1/2 bg-gray-700 border border-gray-600 rounded-r-md px-2 py-1 text-sm" value="${value}">
+        <button class="ml-2 text-red-400 remove-header" title="Remove header">−</button>
+      `;
+      headersList.appendChild(div);
+    }
+    addHeaderBtn.addEventListener('click', () => {
+      createHeaderInput();
+    });
+    headersList.addEventListener('click', (e) => {
+      if (e.target.closest('.remove-header')) e.target.closest('.flex').remove();
+    });
+    createHeaderInput('Content-Type','application/json');
+
+    // Tab setup helper
+    function setupTabs(tabsId, viewParent) {
+      const tabs = document.getElementById(tabsId);
+      tabs.addEventListener('click', (e) => {
+        const btn = e.target.closest('button');
+        if (!btn) return;
+        Array.from(tabs.children).forEach(c => c.classList.remove('tab-active'));
+        btn.classList.add('tab-active');
+        Array.from(viewParent.children).forEach(view => view.classList.toggle('hide', view.id !== btn.dataset.tab + '-view'));
+      });
+    }
+    setupTabs('request-tabs', document.querySelector('#req-body-view').parentElement);
+    setupTabs('response-tabs', document.querySelector('#res-body-view').parentElement);
+
+    document.getElementById('show-kitchen-guide').addEventListener('click', () => {
+      openGuide('Data Kitchen User Guide', `
+        <h3 class="font-bold text-lg mb-2 text-indigo-400">Welcome to the Data Kitchen!</h3>
+        <p class="mb-4">This tool allows you to transform data by applying a sequence of operations. The output updates automatically.</p>
+        <h4 class="font-semibold mb-2">How It Works</h4>
+        <ul class="list-disc list-inside">
+          <li>Operations Panel (Left) — click to add operations.</li>
+          <li>Recipe Panel (Middle) — order matters; remove with the X button.</li>
+          <li>Input/Output (Right) — paste input and view transformed output.</li>
+        </ul>
+      `);
+    });
+
+    document.getElementById('show-api-guide').addEventListener('click', () => {
+      openGuide('API Tester User Guide', `
+        <h3 class="font-bold text-lg mb-2 text-indigo-400">Welcome to the API Tester!</h3>
+        <p class="mb-4">Make HTTP requests and inspect response headers, body, and timing.</p>
+        <h4 class="font-semibold mb-2">Note</h4>
+        <p class="text-sm">If the target API does not allow cross-origin requests, the browser will block the request (CORS). Use a server-side proxy or test on the server for endpoints you control.</p>
+      `);
+    });
+
+    apiSend.addEventListener('click', async () => {
+      const url = (apiUrl.value || '').trim();
+      if (!url) {
+        const msgBox = document.createElement('div');
+        msgBox.className = "fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-4 bg-red-700 rounded-md shadow-lg text-white font-semibold z-50";
+        msgBox.textContent = "Please enter a URL.";
+        document.body.appendChild(msgBox);
+        setTimeout(() => msgBox.remove(), 2000);
+        return;
+      }
+
+      sendText.classList.add('hide');
+      sendSpinner.classList.remove('hide');
+      apiSend.disabled = true;
+
+      const headers = new Headers();
+      document.querySelectorAll('#headers-list .flex').forEach(row => {
+        const inputs = row.querySelectorAll('input');
+        const key = inputs[0].value.trim();
+        const value = inputs[1].value.trim();
+        if (key) headers.append(key, value);
+      });
+
+      const options = { method: apiMethod.value, headers };
+      if (['POST','PUT','PATCH'].includes(options.method)) options.body = apiBody.value;
+
+      const start = performance.now();
+      try {
+        const response = await fetch(url, options);
+        const end = performance.now();
+        apiTime.textContent = `${Math.round(end - start)} ms`;
+
+        const statusClass = `status-${Math.floor(response.status/100)}00`;
+        apiStatus.className = `px-2 py-1 rounded-md text-sm font-semibold text-white ${statusClass}`;
+        apiStatus.textContent = `${response.status} ${response.statusText}`;
+
+        let respHeaders = '';
+        response.headers.forEach((v,k) => respHeaders += `${k}: ${v}\n`);
+        document.getElementById('api-response-headers').textContent = respHeaders;
+
+        const text = await response.text();
+        try {
+          apiResponseBody.value = JSON.stringify(JSON.parse(text), null, 2);
+        } catch {
+          apiResponseBody.value = text;
+        }
+        apiSize.textContent = `${(new Blob([text]).size / 1024).toFixed(2)} KB`;
+      } catch (err) {
+        apiStatus.className = 'px-2 py-1 rounded-md text-sm font-semibold text-white status-400';
+        apiStatus.textContent = 'Request Failed';
+        apiResponseBody.value = `Error: ${err && err.message ? err.message : String(err)}\n\nThis may be a network error or a CORS restriction. Check the browser console.`;
+        apiTime.textContent = '-';
+        apiSize.textContent = '-';
+        document.getElementById('api-response-headers').textContent = '';
+      } finally {
+        sendText.classList.remove('hide');
+        sendSpinner.classList.add('hide');
+        apiSend.disabled = false;
+      }
+    });
+
+    // Initialize UI
+    renderOps();
+    renderRecipe();
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+  });
+  </script>
 </body>
 </html>
