@@ -132,3 +132,4 @@ AndroidManifest ext:xml -github -gitlab -googlesource
 inurl:"plesk-stat"
 intitle:"Control Panel"
 intext:"GET http://" OR intext:"GET http://" ext:txt
+
