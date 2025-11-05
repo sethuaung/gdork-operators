@@ -1,0 +1,41 @@
+1. Open Directories
+intitle:"index of" "parent directory"
+intitle:"index of" "backup"
+intitle:"index of" ".git/"
+intitle:"index of" "uploads"
+
+2. Exposed Config Examples (training only)
+filetype:env "DB_PASSWORD"
+filetype:yaml "database:" "password"
+filetype:ini "username" "password"
+
+3. Public Git Repositories (safe search)
+site:github.com "README" "example-repo"
+site:gitlab.com "README" "example-project"
+
+4. Login and Admin Panels (training only)
+inurl:login "site:example.com"
+inurl:wp-admin "site:example.com"
+inurl:/admin/ "site:example.com"
+
+5. API and Docs Patterns
+inurl:/docs/ "site:example.com"
+inurl:/api/ "site:example.com"
+intext:"API key" "example.com"
+
+6. Error Messages and Debug Info
+intext:"Stacktrace" "Exception"
+intext:"Fatal error" "on line"
+filetype:log "error" "site:example.com"
+
+7. Cloud Storage and Buckets (public-only)
+site:storage.googleapis.com "example-bucket"
+site:s3.amazonaws.com "example-bucket"
+
+8. Server Info and TLS
+intext:"Server: nginx" "site:example.com"
+intext:"Apache/2." "site:example.com"
+
+9. Safe Examples and Notes
+"Example only - do not query unauthorized targets"
+"Use these templates in a controlled lab only"
