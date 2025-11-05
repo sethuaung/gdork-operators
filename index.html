@@ -1,140 +1,271 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="en" class="antialiased">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="keywords" content="GDork-Sample">
-    <meta name="description" content="Sample Google Dorking Templates for Class Training">
-    <meta name="author" content="Mosquito">
-    <link href="images/favicon_fe.ico" rel="icon">
-    <title>Google Dorking Tool</title>
-    <style>
-        body {
-            background-color: black;
-            color: green;
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        h1, h2 {
-            color: pink;
-        }
-        .container {
-            width: 90%;
-            max-width: 800px;
-            margin-top: 20px;
-        }
-        textarea {
-            width: 100%;
-            height: 150px;
-            background-color: #111;
-            color: green;
-            border: 1px solid green;
-            padding: 10px;
-            margin-bottom: 20px;
-            resize: none;
-        }
-        button {
-            background-color: pink;
-            color: black;
-            border: none;
-            padding: 10px 15px;
-            font-size: 16px;
-            cursor: pointer;
-            margin-right: 10px;
-        }
-        button:hover {
-            background-color: green;
-            color: black;
-        }
-        .category {
-            margin-bottom: 40px;
-        }
-        label {
-            font-weight: bold;
-        }
-        .credit {
-          margin-top: 40px;
-          text-align: center;
-          font-size: 15px;
-          color: #444;
-        }
-        .credit a {
-          color: #0d47a1;
-          text-decoration: none;
-          font-weight: bold;
-        }
-    </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Google Dorking Tool — Visual</title>
+  <meta name="description" content="Sample Google Dorking Templates for Class Training" />
+  <meta name="author" content="James" />
+
+  <!-- Tailwind CDN (fast prototyping). For prod, use a build step. -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    /* small UX helpers */
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace; }
+    .line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  </style>
 </head>
-<body>
-    <h1>Google Dorking Tool</h1>
-    <div class="container">
-        <label for="domain">Enter Domain for Subdomain Queries:</label>
-        <input type="text" id="domain" placeholder="example.com" style="width: 100%; margin-bottom: 20px; padding: 10px;">
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col">
 
-        <button onclick="addUrlPrefix()">Add URL Prefix</button>
-        <button onclick="generateSubdomainQueries()">Generate Subdomain Queries</button>
-        <button onclick="clearOutput()">Clear Output</button>
+  <header class="bg-slate-800 border-b border-slate-700">
+    <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <svg class="w-8 h-8 text-indigo-400" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M3 12h18M12 3v18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <div>
+          <h1 class="text-lg font-semibold">Google Dorking Tool</h1>
+          <p class="text-sm text-slate-400">Template browser and generator for class training</p>
+        </div>
+      </div>
 
-        <div id="output"></div>
+      <div class="flex items-center gap-2">
+        <button id="btn-refresh" class="inline-flex items-center gap-2 px-3 py-2 rounded bg-indigo-600 hover:bg-indigo-500 text-sm">
+          Refresh
+        </button>
+        <a href="#" class="text-slate-400 text-sm hover:text-slate-200">@James</a>
+      </div>
     </div>
-    <div class="credit">
-      🔗 By <a href="https://#" target="_blank">@James</a>
+  </header>
+
+  <main class="flex-1 max-w-6xl mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Left: Controls -->
+    <section class="lg:col-span-1 bg-slate-800 border border-slate-700 rounded-lg p-4 space-y-4">
+      <label class="block text-sm font-medium text-slate-300">Domain (for subdomain queries)</label>
+      <input id="domain" type="text" placeholder="example.com" class="w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500" />
+
+      <div class="flex flex-wrap gap-2">
+        <button id="add-prefix" class="mt-2 px-3 py-2 rounded bg-pink-500 hover:bg-pink-400 text-slate-900 text-sm">Add URL Prefix</button>
+        <button id="gen-subdomains" class="mt-2 px-3 py-2 rounded bg-amber-500 hover:bg-amber-400 text-slate-900 text-sm">Generate Subdomain Queries</button>
+        <button id="clear-output" class="mt-2 px-3 py-2 rounded bg-rose-600 hover:bg-rose-500 text-white text-sm">Clear Output</button>
+      </div>
+
+      <div class="pt-3 border-t border-slate-700">
+        <p class="text-xs text-slate-400">Actions apply to each category panel. Use the copy button to copy one category to clipboard.</p>
+      </div>
+
+      <div id="toast" class="hidden fixed bottom-6 right-6 bg-slate-800 border border-slate-700 px-4 py-2 rounded shadow text-sm"></div>
+    </section>
+
+    <!-- Center: Output categories -->
+    <section id="categories" class="lg:col-span-2 space-y-4">
+      <!-- Category panels will be injected here -->
+      <div id="output" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+    </section>
+
+    <!-- Right: Chart -->
+    <aside class="col-span-1 lg:col-span-1">
+      <div class="bg-slate-800 border border-slate-700 rounded-lg p-4 h-full flex flex-col">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-sm font-semibold">Dork Categories</h3>
+          <div class="text-xs text-slate-400" id="total-count">0 items</div>
+        </div>
+
+        <canvas id="categoriesChart" class="w-full h-72 bg-slate-900/40 rounded"></canvas>
+
+        <div class="mt-4 text-xs text-slate-400">
+          Chart shows the number of dork lines per category. It updates when dorks.txt is loaded or when controls modify outputs.
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <footer class="bg-slate-900 border-t border-slate-800">
+    <div class="max-w-6xl mx-auto px-4 py-4 text-xs text-slate-500">
+      For training purposes only. Make sure your use cases follow local and organisational policies.
     </div>
- <script>
-    async function loadDorks() {
-        const response = await fetch('dorks.txt');
-        const text = await response.text();
-        const categories = text.split(/\n(?=\d\.)/).filter(section => section.trim() !== ''); // Split categories robustly
-        const outputDiv = document.getElementById('output');
-        outputDiv.innerHTML = '';
+  </footer>
 
-        categories.forEach((category, index) => {
-            const [categoryName, ...dorks] = category.split(/\n/).filter(line => line.trim() !== '');
-            const textareaId = `category-${index + 1}`;
+  <script>
+  // Utility: show small toast
+  function showToast(msg, ms = 1800) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.remove('hidden');
+    t.classList.add('opacity-100');
+    clearTimeout(t._timeout);
+    t._timeout = setTimeout(() => { t.classList.add('hidden'); t.textContent = ''; }, ms);
+  }
 
-            const categoryDiv = document.createElement('div');
-            categoryDiv.className = 'category';
-            categoryDiv.innerHTML = `
-                <h2>${index + 1}. ${categoryName.trim()}</h2>
-                <textarea id="${textareaId}" readonly>${dorks.join('\n')}</textarea>
-            `;
-            outputDiv.appendChild(categoryDiv);
-        });
+  // Load and render dorks from dorks.txt
+  async function loadDorks() {
+    try {
+      const res = await fetch('dorks.txt', { cache: 'no-store' });
+      if (!res.ok) throw new Error('Failed to load dorks.txt');
+      const text = await res.text();
+
+      // Split sections: keep robust split on lines starting with digit+dot OR lines that look like category titles
+      const rawSections = text.split(/\n(?=\d+\.)/).filter(s => s.trim().length > 0);
+      const categories = rawSections.map(section => {
+        const lines = section.split(/\n/).map(l => l.trim()).filter(Boolean);
+        const title = lines.shift() || 'Uncategorized';
+        return { title, lines };
+      });
+
+      renderCategories(categories);
+    } catch (err) {
+      console.error(err);
+      showToast('Unable to load dorks.txt');
     }
+  }
 
-    function addUrlPrefix() {
-        document.querySelectorAll('.category textarea').forEach(textarea => {
-            const dorks = textarea.value.split(/\n/);
-            textarea.value = dorks.map(dork => `https://www.google.com/search?q=${dork}`).join('\n');
-        });
-    }
+  // Render category panels
+  function renderCategories(categories) {
+    const output = document.getElementById('output');
+    output.innerHTML = '';
+    let total = 0;
 
-    function generateSubdomainQueries() {
-        const domain = document.getElementById('domain').value.trim();
-        if (!domain) {
-            alert('Please enter a domain!');
-            return;
+    categories.forEach((cat, idx) => {
+      total += cat.lines.length;
+      const panel = document.createElement('section');
+      panel.className = 'bg-slate-800 border border-slate-700 rounded-lg p-3 flex flex-col';
+
+      const header = document.createElement('div');
+      header.className = 'flex items-start justify-between gap-3';
+      header.innerHTML = `
+        <div>
+          <h4 class="text-sm font-semibold text-slate-100">${idx + 1}. ${escapeHtml(cat.title)}</h4>
+          <p class="text-xs text-slate-400 line-clamp-3">${escapeHtml(cat.lines.slice(0,3).join(' • '))}</p>
+        </div>
+      `;
+      panel.appendChild(header);
+
+      const textarea = document.createElement('textarea');
+      textarea.className = 'mt-3 bg-slate-900 border border-slate-700 rounded p-2 text-xs mono text-slate-200 resize-none h-36';
+      textarea.readOnly = true;
+      textarea.value = cat.lines.join('\\n');
+      panel.appendChild(textarea);
+
+      const controls = document.createElement('div');
+      controls.className = 'mt-3 flex items-center gap-2';
+      controls.innerHTML = `
+        <button class="px-2 py-1 rounded bg-indigo-600 hover:bg-indigo-500 text-xs" data-action="copy">Copy</button>
+        <button class="px-2 py-1 rounded bg-emerald-600 hover:bg-emerald-500 text-xs" data-action="prefix">Add URL Prefix</button>
+        <button class="px-2 py-1 rounded bg-amber-500 hover:bg-amber-400 text-xs" data-action="subdomain">Subdomain Scope</button>
+      `;
+      panel.appendChild(controls);
+
+      // Wire controls
+      controls.addEventListener('click', (ev) => {
+        const action = ev.target.getAttribute('data-action');
+        if (!action) return;
+        if (action === 'copy') {
+          navigator.clipboard.writeText(textarea.value).then(() => showToast('Copied'));
+        } else if (action === 'prefix') {
+          textarea.value = textarea.value.split('\\n').map(l => `https://www.google.com/search?q=${encodeURIComponent(l)}`).join('\\n');
+          showToast('Prefixed');
+          updateChartFromPanels();
+        } else if (action === 'subdomain') {
+          const domain = document.getElementById('domain').value.trim();
+          if (!domain) { showToast('Enter domain first'); return; }
+          const subdomainScope = `site:${domain} | site:*.${domain} | site:*.*.${domain} | site:*.*.*.${domain}`;
+          textarea.value = textarea.value.split('\\n').map(l => `${l} ${subdomainScope}`).join('\\n');
+          showToast('Subdomain scope applied');
+          updateChartFromPanels();
         }
+      });
 
-        const subdomainScope = `site:${domain} | site:*.${domain} | site:*.*.${domain} | site:*.*.*.${domain} | site:*.*.*.*.${domain} | site:*.*.*.*.*.${domain}`;
-        document.querySelectorAll('.category textarea').forEach(textarea => {
-            const dorks = textarea.value.split(/\n/);
-            textarea.value = dorks.map(dork => `${dork} ${subdomainScope}`).join('\n');
-        });
+      output.appendChild(panel);
+    });
+
+    document.getElementById('total-count').textContent = `${total} items`;
+    updateChart(categories);
+  }
+
+  // Escape helper for titles
+  function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, (s) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
+  }
+
+  // Global Chart.js instance
+  let categoriesChart = null;
+  function updateChart(categories) {
+    const ctx = document.getElementById('categoriesChart').getContext('2d');
+    const labels = categories.map((c, i) => (i+1) + '. ' + (c.title.length > 24 ? c.title.slice(0, 21) + '...' : c.title));
+    const values = categories.map(c => c.lines.length);
+
+    if (categoriesChart) {
+      categoriesChart.data.labels = labels;
+      categoriesChart.data.datasets[0].data = values;
+      categoriesChart.update();
+      return;
     }
 
-    function clearOutput() {
-        document.querySelectorAll('.category textarea').forEach(textarea => {
-            textarea.value = '';
-        });
-    }
+    categoriesChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Dorks per Category',
+          data: values,
+          backgroundColor: labels.map(() => 'rgba(99,102,241,0.8)'),
+          borderColor: labels.map(() => 'rgba(99,102,241,1)'),
+          borderWidth: 1
+        }]
+      },
+      options: {
+        maintainAspectRatio: false,
+        scales: {
+          x: { ticks: { color: '#cbd5e1' }, grid: { display: false } },
+          y: { beginAtZero: true, ticks: { color: '#cbd5e1' }, grid: { color: 'rgba(148,163,184,0.06)' } }
+        },
+        plugins: { legend: { display: false }, tooltip: { mode: 'index' } }
+      }
+    });
+  }
 
-    window.onload = loadDorks;
-</script>
+  // Update chart counts if UI panels modified by actions
+  function updateChartFromPanels() {
+    const panels = Array.from(document.querySelectorAll('#output section'));
+    const categories = panels.map(p => ({ title: p.querySelector('h4').textContent.trim(), lines: p.querySelector('textarea').value.split('\\n').filter(Boolean) }));
+    document.getElementById('total-count').textContent = `${categories.reduce((s,c) => s + c.lines.length, 0)} items`;
+    updateChart(categories);
+  }
 
+  // Top-level control buttons
+  document.getElementById('add-prefix').addEventListener('click', () => {
+    document.querySelectorAll('#output textarea').forEach(t => {
+      t.value = t.value.split('\\n').map(l => `https://www.google.com/search?q=${encodeURIComponent(l)}`).join('\\n');
+    });
+    showToast('All prefixed');
+    updateChartFromPanels();
+  });
+
+  document.getElementById('gen-subdomains').addEventListener('click', () => {
+    const domain = document.getElementById('domain').value.trim();
+    if (!domain) { showToast('Enter domain'); return; }
+    const subdomainScope = `site:${domain} | site:*.${domain} | site:*.*.${domain} | site:*.*.*.${domain}`;
+    document.querySelectorAll('#output textarea').forEach(t => {
+      t.value = t.value.split('\\n').map(l => `${l} ${subdomainScope}`).join('\\n');
+    });
+    showToast('Subdomain scope applied to all');
+    updateChartFromPanels();
+  });
+
+  document.getElementById('clear-output').addEventListener('click', () => {
+    document.querySelectorAll('#output textarea').forEach(t => t.value = '');
+    showToast('Cleared');
+    updateChartFromPanels();
+  });
+
+  document.getElementById('btn-refresh').addEventListener('click', () => loadDorks());
+
+  // Initialize
+  loadDorks();
+  </script>
 </body>
 </html>
